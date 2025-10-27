@@ -1,10 +1,12 @@
 interface PrFetchOption {
   timeout?: number
+  check?: boolean
 }
 
 export class PrFetch {
   #option: PrFetchOption = {
-    timeout: 5 * 1000
+    timeout: 5 * 1000,
+    check: false
   }
   #abortController?: AbortController
 
@@ -51,7 +53,9 @@ export class PrFetch {
   request = async (input: string | URL | Request, init?: RequestInit) => {
     return new Promise<Response>(async (resolve, reject) => {
       try {
-        await this.check(input, init)
+        if (this.#option.check) {
+          await this.check(input, init)
+        }
         this.#abortController = new AbortController()
         const res = await fetch(input, { ...init, signal: this.#abortController?.signal })
         resolve(res)
